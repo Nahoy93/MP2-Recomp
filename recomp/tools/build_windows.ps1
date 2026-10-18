@@ -18,7 +18,13 @@ $ErrorActionPreference = "Stop"
 function Step($text) { Write-Host ""; Write-Host "==> $text" -ForegroundColor Green }
 function Fail($text) { Write-Host ""; Write-Host "FEL: $text" -ForegroundColor Red; exit 1 }
 function Run($exe, [string[]]$arguments) {
-    & $exe @arguments
+    # Programs like pip, git and splat write progress to stderr. Windows
+    # PowerShell turns that into errors when output is redirected, so only the
+    # exit code decides success here.
+    $previous = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try { & $exe @arguments 2>&1 | ForEach-Object { "$_" } }
+    finally { $ErrorActionPreference = $previous }
     if ($LASTEXITCODE -ne 0) { Fail "$exe avslutades med kod $LASTEXITCODE" }
 }
 
