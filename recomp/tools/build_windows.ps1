@@ -78,7 +78,9 @@ Run $VenvPy @("-m", "pip", "install", "--quiet", "-r", (Join-Path $RecompDir "re
 # --- 3. Symboler ---------------------------------------------------------------
 
 Step "3/6 Läser funktioner ur ROM:en med splat"
-Run $VenvPy @((Join-Path $RecompDir "tools\gen_syms.py"), "--rom", $Rom, "--out", $GenDir)
+$symArgs = @((Join-Path $RecompDir "tools\gen_syms.py"), "--rom", $Rom, "--out", $GenDir)
+if ($env:MP2_TEST_ROM -eq "1") { $symArgs += "--allow-wrong-rom" }  # CI: fake ROM
+Run $VenvPy $symArgs
 
 # --- 4. N64Recomp --------------------------------------------------------------
 

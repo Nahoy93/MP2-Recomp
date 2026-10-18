@@ -44,7 +44,9 @@ PY="$RECOMP_DIR/.venv/bin/python"
 "$PY" -m pip install --quiet -r "$RECOMP_DIR/requirements.txt"
 
 step "3/6 Läser funktioner ur ROM:en med splat"
-"$PY" "$RECOMP_DIR/tools/gen_syms.py" --rom "$ROM" --out "$GEN_DIR"
+EXTRA_ARGS=()
+[[ "${MP2_TEST_ROM:-0}" == "1" ]] && EXTRA_ARGS+=(--allow-wrong-rom)  # CI: fake ROM
+"$PY" "$RECOMP_DIR/tools/gen_syms.py" --rom "$ROM" --out "$GEN_DIR" "${EXTRA_ARGS[@]}"
 
 step "4/6 Bygger och kör N64Recomp"
 cmake -S "$RECOMP_DIR/lib/N64ModernRuntime/N64Recomp" -B "$TOOLS_BUILD" -G Ninja \
