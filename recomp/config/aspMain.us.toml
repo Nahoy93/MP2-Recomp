@@ -1,0 +1,22 @@
+# RSPRecomp configuration for Mario Party 2 (USA)'s audio microcode.
+#
+# aspMainTextStart is at ROM 0xBF560 (symbol_addrs.txt), 0xE20 bytes long:
+# the stock libultra aspMain that Snowboard Kids 2 and Body Harvest also ship,
+# so the indirect branch targets below are the ones those ports use.
+text_offset = 0xBF560
+text_size = 0xE20
+text_address = 0x04001080
+rom_file_path = "../generated/baserom.z64"
+output_file_path = "../generated/RecompiledFuncs/aspMain_rsp.cpp"
+output_function_name = "aspMain"
+
+extra_indirect_branch_targets = [
+    0x1118, 0x1470,
+    0x11DC, 0x1B38,
+    0x1214, 0x187C,
+    0x1254, 0x12D0,
+    0x12EC, 0x1328,
+    0x140C, 0x1294,
+    0x1E24, 0x138C,
+    0x170C, 0x144C,
+]

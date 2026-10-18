@@ -1,0 +1,6 @@
+# Python packages the build scripts need (installed into recomp/.venv).
+# splat: the same fork and revision the decompilation uses.
+splat64[mips] @ git+https://github.com/Rainchus/splat.git@78c21c6d29f82ceb45301f1d501cb665a71a6b12
+spimdisasm>=1.40.0,<2.0.0
+PyYAML
+xxhash

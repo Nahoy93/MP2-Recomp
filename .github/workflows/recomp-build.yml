@@ -1,0 +1,85 @@
+# Checks that the PC port compiles and links on Windows and Linux.
+#
+# Uses a fake ROM made by recomp/tools/make_test_rom.py: no game data is
+# downloaded, built or uploaded. The real game is built locally from your own
+# ROM (recomp/BYGGA.md). Nothing from these runs is published as an artifact.
+
+name: PC-port bygge (test-ROM)
+
+on:
+  push:
+    paths: [ "recomp/**", ".github/workflows/recomp-build.yml", ".gitmodules" ]
+  pull_request:
+    paths: [ "recomp/**", ".github/workflows/recomp-build.yml", ".gitmodules" ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 180
+    env:
+      MP2_TEST_ROM: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Gör test-ROM
+        run: python recomp/tools/make_test_rom.py "$env:RUNNER_TEMP\test.z64"
+      - name: Bygg
+        shell: bash
+        run: |
+          set -o pipefail
+          powershell -NoProfile -ExecutionPolicy Bypass -File recomp/tools/build_windows.ps1 -Rom "$RUNNER_TEMP/test.z64" 2>&1 | tee "$RUNNER_TEMP/build.log"
+      - name: Visa felet
+        if: failure()
+        shell: bash
+        run: |
+          grep -nE "FEL|error|Error|FAILED|Traceback|undefined" "$RUNNER_TEMP/build.log" | grep -v "warning" | tail -n 25 | sed ':a;N;$!ba;s/%/%25/g;s/\r//g;s/\n/%0A/g' | sed 's/^/::error title=matchande rader::/'
+          tail -n 40 "$RUNNER_TEMP/build.log" | sed ':a;N;$!ba;s/%/%25/g;s/\r//g;s/\n/%0A/g' | sed 's/^/::error title=slutet av loggen::/'
+      - name: Kontrollera resultatet
+        run: |
+          if (-not (Test-Path recomp\build\mp2-recomp.exe)) { throw "mp2-recomp.exe saknas" }
+          foreach ($f in @("SDL2.dll", "dxcompiler.dll", "dxil.dll", "assets\recomp.rcss", "assets\LatoLatin-Regular.ttf", "assets\promptfont\promptfont.ttf")) {
+            if (-not (Test-Path (Join-Path recomp\build $f))) { throw "$f saknas bredvid programmet" }
+          }
+          Get-Item recomp\build\mp2-recomp.exe | Format-List Name, Length
+
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      MP2_TEST_ROM: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Installera paket
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build clang lld llvm libsdl2-dev libgtk-3-dev
+      - name: Gör test-ROM
+        run: python recomp/tools/make_test_rom.py "$RUNNER_TEMP/test.z64"
+      - name: Bygg
+        run: |
+          set -o pipefail
+          recomp/tools/build_linux.sh "$RUNNER_TEMP/test.z64" 2>&1 | tee "$RUNNER_TEMP/build.log"
+      - name: Visa felet
+        if: failure()
+        run: |
+          grep -nE "FEL|error|Error|FAILED|Traceback|undefined" "$RUNNER_TEMP/build.log" | grep -v "warning" | tail -n 25 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g' | sed 's/^/::error title=matchande rader::/'
+          tail -n 40 "$RUNNER_TEMP/build.log" | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g' | sed 's/^/::error title=slutet av loggen::/'
+      - name: Kontrollera resultatet
+        run: |
+          test -x recomp/build/mp2-recomp
+          test -f recomp/build/assets/recomp.rcss
+          ls -la recomp/build/mp2-recomp
