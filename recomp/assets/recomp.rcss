@@ -1,0 +1,15 @@
+/*
+ * recompui loads this from <executable>/assets/recomp.rcss.
+ *
+ * The menu colours live in recompui's theme (set from C++), not here; this
+ * file only names the font. The family must be the one declared inside the
+ * .ttf ("LatoLatin" for LatoLatin-Regular.ttf) and must match
+ * register_primary_font in src/frontend.cpp, or the menus draw without text.
+ */
+
+body {
+    font-family: LatoLatin;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 20dp;
+}

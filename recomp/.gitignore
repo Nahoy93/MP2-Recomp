@@ -1,0 +1,11 @@
+# Everything made from the ROM or by the build. Never commit game data.
+generated/
+build/
+build-*/
+.venv/
+*.z64
+*.n64
+*.v64
+
+# The decomp ignores every "assets/" folder; ours holds the menu fonts and icons.
+!/assets/
