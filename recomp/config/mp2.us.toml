@@ -33,4 +33,15 @@ ignored = [
     # runtime's overlay tracking cannot see as one load. src/overlays.cpp does
     # the copy in one piece and tells the runtime which overlay is now loaded.
     "HuRomDmaCodeRead",
+
+    # 64-bit division helpers. N64Recomp renames these to <name>_recomp and
+    # still translates them, but librecomp already defines the same names
+    # (src/math_routines.cpp). Two definitions fail the Windows link, so the
+    # game's copies are skipped and the runtime's are used.
+    "__divdi3_recomp",
+    "__udivdi3_recomp",
+    "__umoddi3_recomp",
+    # Same for setjmp/longjmp (librecomp/src/recomp.cpp).
+    "setjmp_recomp",
+    "longjmp_recomp",
 ]
