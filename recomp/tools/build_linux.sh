@@ -51,7 +51,7 @@ EXTRA_ARGS=()
 step "4/6 Bygger och kör N64Recomp"
 cmake -S "$RECOMP_DIR/lib/N64ModernRuntime/N64Recomp" -B "$TOOLS_BUILD" -G Ninja \
     -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ >/dev/null
-cmake --build "$TOOLS_BUILD" --target N64Recomp RSPRecomp -j "$JOBS"
+cmake --build "$TOOLS_BUILD" --target N64RecompCLI RSPRecomp -j "$JOBS"
 rm -rf "$GEN_DIR/RecompiledFuncs"
 "$TOOLS_BUILD/N64Recomp" "$RECOMP_DIR/config/mp2.us.toml"
 "$TOOLS_BUILD/RSPRecomp" "$RECOMP_DIR/config/aspMain.us.toml"

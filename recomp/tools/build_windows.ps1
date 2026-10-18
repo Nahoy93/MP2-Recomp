@@ -93,7 +93,7 @@ Run $VenvPy $symArgs
 Step "4/6 Bygger och kör N64Recomp"
 Run cmake @("-S", (Join-Path $RecompDir "lib\N64ModernRuntime\N64Recomp"), "-B", $ToolsBuild, "-G", "Ninja",
             "-DCMAKE_BUILD_TYPE=Release", "-DCMAKE_C_COMPILER=clang-cl", "-DCMAKE_CXX_COMPILER=clang-cl")
-Run cmake @("--build", $ToolsBuild, "--target", "N64Recomp", "RSPRecomp")
+Run cmake @("--build", $ToolsBuild, "--target", "N64RecompCLI", "RSPRecomp")
 $funcsDir = Join-Path $GenDir "RecompiledFuncs"
 if (Test-Path $funcsDir) { Remove-Item -Recurse -Force $funcsDir }
 Run (Join-Path $ToolsBuild "N64Recomp.exe") @((Join-Path $RecompDir "config\mp2.us.toml"))
